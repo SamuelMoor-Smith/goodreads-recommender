@@ -48,7 +48,7 @@
 	/**
 	 * @type {string}
 	 */
-	let cinemaType = 'tv show';
+	let cinemaType = 'book';
 	/**
 	 * @type {Array<string>}
 	 */
@@ -73,6 +73,9 @@
 				? `If you do not have 5 recommendations that fit these criteria perfectly, do your best to suggest other ${cinemaType}'s that I might like.`
 				: ''
 		} Please return this response as a numbered list with the ${cinemaType}'s title, followed by a colon, and then a brief description of the ${cinemaType}. There should be a line of whitespace between each item in the list.`;
+
+		console.log(fullSearchCriteria);
+
 		const response = await fetch('/api/getRecommendation', {
 			method: 'POST',
 			body: JSON.stringify({ searched: fullSearchCriteria }),
@@ -81,9 +84,12 @@
 			}
 		});
 
+		console.log(response);
+
 		if (response.ok) {
 			try {
 				const data = response.body;
+				console.log(data);
 				if (!data) {
 					return;
 				}
@@ -114,7 +120,7 @@
 		recommendations = [];
 		searchResponse = '';
 		endStream = false;
-		cinemaType = 'tv show';
+		cinemaType = 'book';
 		selectedCategories = [];
 		specificDescriptors = '';
 	}

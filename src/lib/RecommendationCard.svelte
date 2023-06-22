@@ -7,7 +7,7 @@
 	export let recommendation;
 
 	async function getRecommendationInfo() {
-		const response = await fetch('/api/getMediaDetails', {
+		const response = await fetch('/api/getBookDetails', {
 			method: 'POST',
 			body: JSON.stringify({ title: recommendation.title }),
 			headers: {
@@ -15,8 +15,10 @@
 			}
 		});
 		let recommendationDetails = await response.json();
-
-		return recommendationDetails;
+		
+		console.log(recommendationDetails);
+		console.log(recommendationDetails.items[0].volumeInfo);
+		return recommendationDetails.items[0].volumeInfo;  // get the volumeInfo of the first item
 	}
 
 	let promise = getRecommendationInfo();
@@ -26,15 +28,15 @@
 	{#await promise}
 		<LoadingCard incomingStream={false} />
 	{:then data}
-		{#if data.Poster}
+		{#if data.imageLinks && data.imageLinks.thumbnail}
 			<div in:fade class="relative flex flex-col md:flex-row bg-neutral-800/70 shadow-md p-6">
 				<div
 					class="hidden md:block h-[250px] flex-none w-1/5 bg-cover bg-center"
-					style={`background-image: url(${data.Poster})`}
+					style={`background-image: url(${data.imageLinks.thumbnail})`}
 				/>
 				<div
 					class="md:hidden z-10 absolute inset-0 bg-cover bg-center"
-					style={`background-image: url(${data.Poster})`}
+					style={`background-image: url(${data.imageLinks.thumbnail})`}
 				>
 					<div class="w-full h-full bg-black/80 bg-blur-sm" />
 				</div>
@@ -43,20 +45,20 @@
 					<div>
 						<div class="flex items-end mb-4">
 							<div class="font-bold text-slate-200 text-3xl">
-								{data.Title}
-								<span class="font-bold text-slate-200/60 text-xl ml-2">{data.Year}</span>
+								{data.title}
+								<span class="font-bold text-slate-200/60 text-xl ml-2">{data.authors}</span>
 							</div>
 						</div>
 						<div class="text-slate-200/90 mb-4">
-							{data.Plot}
+							{data.description}
 						</div>
 						<div class="text-slate-200/50 mb-4">
-							Starring: {data.Actors}
+							Publisher: {data.publisher}
 						</div>
 					</div>
 					<div class="flex items-center">
 						<div class="mr-4 py-1 px-2 rounded-full text-pink-600 border border-pink-600 text-xs">
-							{data.Rated}
+							{data.categories}
 						</div>
 					</div>
 				</div>
