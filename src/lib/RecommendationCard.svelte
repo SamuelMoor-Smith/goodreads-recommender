@@ -22,6 +22,17 @@
 	}
 
 	let promise = getRecommendationInfo();
+
+	let isReadMore = true;
+	let descriptionLengthThreshold = 500; // or any other number you prefer
+  
+	/**
+	 * @param {string} text
+	 * @param {number} num
+	 */
+	function truncateText(text, num) {
+		return text.length > num ? text.slice(0, num) + '...' : text;
+	}
 </script>
 
 <div>
@@ -49,8 +60,20 @@
 								<span class="font-bold text-slate-200/60 text-xl ml-2">{data.authors}</span>
 							</div>
 						</div>
-						<div class="text-slate-200/90 mb-4">
+						<!-- <div class="text-slate-200/90 mb-4">
 							{data.description}
+						</div> -->
+						<div class="text-slate-200/90 mb-4">
+							{isReadMore ? truncateText(data.description, descriptionLengthThreshold) : data.description}
+							{#if data.description.length > descriptionLengthThreshold}
+								<button 
+									class="btn btn-primary ml-2" 
+									on:click={() => isReadMore = !isReadMore}
+									style="font-size: 0.9rem; color: grey;"
+								>
+									{isReadMore ? 'Read More' : 'Read Less'}
+								</button>
+							{/if}
 						</div>
 						<div class="text-slate-200/50 mb-4">
 							Publisher: {data.publisher}

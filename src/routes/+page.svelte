@@ -21,6 +21,11 @@
 	 * @type {Array<string | {title: string, description: string}>}
 	 */
 	let recommendations = [];
+	/**
+	 * @type Array<any>
+	 */
+	 export let checkedBooks;
+
 
 	/**
 	 * @param {string} target
@@ -48,12 +53,26 @@
 	/**
 	 * @type {string}
 	 */
-	let cinemaType = 'book';
+	// let cinemaType = 'Book';
 	/**
 	 * @type {Array<string>}
 	 */
 	let selectedCategories = [];
 	let specificDescriptors = '';
+
+	async function generateFeederString() {
+		let bookStatements = checkedBooks.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => {
+			let statement = `Title: ${book.Title}, Author: ${book.Author}`;
+			if (book["My Rating"] !== "0") {
+			statement += `, My rating: ${book["My Rating"]}`;
+			}
+			if (book["My Review"] !== "") {
+			statement += `, My review: ${book["My Review"]}`;
+			}
+			return statement;
+		});
+		return `I would like the books to be similar to the following books: ${bookStatements.join("; ")}. Please do not add any of these books on the recommended reading list as I already know of all of them.`;
+	}
 
 	async function search() {
 		if (loading) return;
@@ -62,19 +81,20 @@
 		endStream = false;
 		loading = true;
 
-		let fullSearchCriteria = `Give me a list of 5 ${cinemaType} recommendations ${
+		// Pass your parsed data array to the function
+		let feederString = await generateFeederString();
+
+		let fullSearchCriteria = `Give me a list of 5 book recommendations ${
 			selectedCategories ? `that fit all of the following categories: ${selectedCategories}` : ''
 		}. ${
 			specificDescriptors
 				? `Make sure it fits the following description as well: ${specificDescriptors}.`
 				: ''
-		} ${
+		} ${feederString} ${
 			selectedCategories || specificDescriptors
-				? `If you do not have 5 recommendations that fit these criteria perfectly, do your best to suggest other ${cinemaType}'s that I might like.`
+				? `If you do not have 5 recommendations that fit these criteria perfectly and you believe I would be interested in based on my current reading list, do your best to suggest other book's that I might like.`
 				: ''
-		} Please return this response as a numbered list with the ${cinemaType}'s title, followed by a colon, and then a brief description of the ${cinemaType}. There should be a line of whitespace between each item in the list.`;
-
-		console.log(fullSearchCriteria);
+		} Please return this response as a numbered list with the book's title, followed by a colon, and then a brief description of the books. There should be a line of whitespace between each item in the list.`;	
 
 		const response = await fetch('/api/getRecommendation', {
 			method: 'POST',
@@ -84,12 +104,9 @@
 			}
 		});
 
-		console.log(response);
-
 		if (response.ok) {
 			try {
 				const data = response.body;
-				console.log(data);
 				if (!data) {
 					return;
 				}
@@ -120,14 +137,14 @@
 		recommendations = [];
 		searchResponse = '';
 		endStream = false;
-		cinemaType = 'book';
+		// cinemaType = 'book';
 		selectedCategories = [];
 		specificDescriptors = '';
 	}
 </script>
 
 <div>
-	<div class="h-screen w-full bg-cover fixed" style="background-image: url(/background.png)">
+	<div class="h-screen w-full bg-cover fixed" style="background-image: url(/pexels-engin-akyurt-2943603.jpg)">
 		<div
 			class={`${
 				makeRecommendation ? 'backdrop-blur-md' : ''
@@ -157,10 +174,10 @@
 			<div in:fade class="w-full max-w-4xl mx-auto">
 				<div class="w-full mb-8">
 					<Form
-						bind:cinemaType
 						bind:selectedCategories
 						bind:loading
 						bind:specificDescriptors
+						bind:checkedBooks
 						on:click={search}
 					/>
 					{#if recommendations.length > 0 && endStream}

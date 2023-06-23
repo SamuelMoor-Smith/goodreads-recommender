@@ -1,10 +1,11 @@
 <script>
+	import Goodreads from './Goodreads.svelte';
 	import LoadingIndicator from './Loading.svelte';
 
 	/**
 	 * @type string
 	 */
-	export let cinemaType;
+	// export let cinemaType;
 	/**
 	 * @type Array<string>
 	 */
@@ -17,73 +18,63 @@
 	 * @type Boolean
 	 */
 	export let loading;
+	/**
+	 * @type Array<any>
+	 */
+	export let checkedBooks;
 
 	const categoryTypes = [
-		'Action',
-		'Adventure',
-		'Animation',
-		'Biography',
-		'Comedy',
-		'Crime',
-		'Documentary',
-		'Drama',
-		'Family',
-		'Fantasy',
-		'Film-Noir',
-		'History',
-		'Horror',
-		'Musical',
+		'Fiction',
+		'Non-fiction',
 		'Mystery',
-		'Romance',
-		'Sci-Fi',
-		'Sport',
 		'Thriller',
-		'War',
-		'Western',
-		'Art-house',
-		'Black-Comedy',
-		'Chick-flick',
-		'Cult-classic',
-		'Dark-Comedy',
-		'Epic',
-		'Erotic',
-		'Experimental',
-		'Fairy-tale',
-		'Film-within-a-film',
-		'Futuristic',
-		'Gangster',
-		'Heist',
-		'Historical',
-		'Holiday',
-		'Indie',
-		'Juvenile',
-		'Melodrama',
-		'Monster',
+		'Fantasy',
+		'Science Fiction',
+		'Horror',
+		'Romance',
+		'Young Adult',
+		'Children’s',
+		'Graphic Novels',
+		'Biography',
+		'History',
+		'Historical Fiction',
+		'Literary Fiction',
+		'Humor',
+		'Cookbooks',
+		'Self-help',
+		'Personal Development',
+		'Philosophy',
+		'Religion',
+		'Poetry',
+		'Classic',
+		'Adventure',
+		'Crime',
+		'Art',
+		'Science',
+		'Business',
+		'Psychology',
+		'Travel',
+		'Sports',
+		'Music',
+		'Health and Fitness',
+		'Parenting',
 		'Political',
-		'Psychological',
-		'Road-movie',
-		'Satire',
-		'Science-Fiction',
-		'Slapstick',
-		'Social-issue',
-		'Superhero',
-		'Surreal',
-		'Teen',
-		'Vampire',
-		'Zombie'
+		'Anthology',
+		'Short Stories',
+		'Fairy Tales'
 	];
 
-	let cinemaTypes = [
-		{ value: 'tv show', title: 'TV Show' },
-		{ value: 'movie', title: 'Movie' },
-		{ value: 'tv show or movie', title: 'No Preference' }
-	];
+	// let cinemaTypes = [
+	// 	{ value: 'tv show', title: 'TV Show' },
+	// 	{ value: 'movie', title: 'Movie' },
+	// 	{ value: 'tv show or movie', title: 'No Preference' }
+	// ];
 </script>
 
 <div class="pt-6 md:pt-10 text-slate-200">
 	<div>
-		<div class="mb-8">
-			<div class="mb-4 font-semibold text-lg">What kind of cinema are you searching for?</div>
+		<!-- <div class="mb-8">
+			<div class="mb-4 font-semibold text-lg">What kind of book are you searching for?</div>
 			<div class="flex items-center">
 				{#each cinemaTypes as type (type.value)}
 					<button
@@ -98,10 +89,10 @@
 					</button>
 				{/each}
 			</div>
-		</div>
+		</div> -->
 		<div>
 			<div class="mb-4 font-semibold text-lg">
-				Select all categories that you want the show or movie to include.
+				Select all categories that you want the books to include.
 			</div>
 			<div class="flex items-center flex-wrap">
 				{#each categoryTypes as category}
@@ -129,7 +120,10 @@
 			<textarea
 				bind:value={specificDescriptors}
 				class="bg-white/40 border border-white/0 p-2 rounded-md placeholder:text-slate-800 text-slate-900 w-full h-20 font-medium"
-				placeholder="Ex. Must have at least 2 seasons and be on Netflix or Hulu."
+				placeholder="Ex. Must be a part of a trilogy."
+			/>
+			<Goodreads 
+				bind:checkedBooks
 			/>
 			<button
 				on:click

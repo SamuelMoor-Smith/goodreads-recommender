@@ -7,7 +7,7 @@
 >
 	<button on:click class="flex items-center mb-4 md:mb-0 text-white/70">
 		<TvIcon />
-		<div class="text-2xl md:text-xl font-bold ml-2">watchthis.dev</div>
+		<div class="text-2xl md:text-xl font-bold ml-2">goodreads-recommender</div>
 	</button>
 	<a
 		class="bg-white/20 hover:bg-white/50 shadow text-white hover:text-pink-600 font-medium rounded p-2 text-sm flex items-center"

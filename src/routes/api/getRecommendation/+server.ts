@@ -31,8 +31,6 @@ async function OpenAIStream(payload: OpenAIStreamPayload) {
 		body: JSON.stringify(payload)
 	});
 
-	// console.log(res);
-
 	const stream = new ReadableStream({
 		async start(controller) {
 			function onParse(event: any) {
@@ -70,12 +68,10 @@ async function OpenAIStream(payload: OpenAIStreamPayload) {
 		}
 	});
 
-	// console.log(stream);
 	return stream;
 }
 
 export async function POST({ request }: { request: any }) {
-	// console.log("posting")
 	const { searched } = await request.json();
 	const payload = {
 		model: 'text-davinci-003',
@@ -89,14 +85,12 @@ export async function POST({ request }: { request: any }) {
 		n: 1
 	};
 	const stream = await OpenAIStream(payload);
-	// console.log("streaming")
 	// const reader = stream.getReader();
     // while (true) {
     //     const { done, value } = await reader.read();
     //     if (done) {
     //         break;
     //     }
-    //     // console.log("value", console.log(decoder.decode(value)));
     // }
 	return new Response(stream);
 }

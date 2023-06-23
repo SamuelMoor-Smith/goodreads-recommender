@@ -2,7 +2,7 @@
 	<div
 		class="text-center md:text-left font-bold text-slate-200 text-4xl md:text-5xl mb-8 md:mb-16 w-full"
 	>
-		Get curated show <br class="hidden md:block" /> and movie recommendations
+		Get curated book <br class="hidden md:block" />recommendations
 		<br class="hidden md:block" /> with Open AI
 	</div>
 	<div class="flex flex-wrap items-center mr-auto">
