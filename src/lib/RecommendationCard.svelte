@@ -16,8 +16,6 @@
 		});
 		let recommendationDetails = await response.json();
 		
-		console.log(recommendationDetails);
-		console.log(recommendationDetails.items[0].volumeInfo);
 		return recommendationDetails.items[0].volumeInfo;  // get the volumeInfo of the first item
 	}
 
