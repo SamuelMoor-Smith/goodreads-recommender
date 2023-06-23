@@ -4,6 +4,8 @@ This project uses the OpenAI GPT-3 API (specifically, text-davinci-003) and Verc
 
 An additional feature was added for extra personalization. A user can import their goodreads reading data after exporting it from [goodreads](https://help.goodreads.com/s/article/How-do-I-import-or-export-my-books-1553870934590). The recommended will then display the list of books the user is reading, has read, or wants to read. The user can then select up to 10 books that will be sent to GPT in order to further personalize the recommendations.
 
+Credit for idea: [Divide-By-0](https://github.com/Divide-By-0/) from https://github.com/Divide-By-0/ideas-for-projects-people-would-use.
+
 # Running Locally
 
 After cloning the repo, go to OpenAI to make an account and put your API key in a file called `.env`.
