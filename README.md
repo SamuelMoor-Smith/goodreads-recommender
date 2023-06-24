@@ -1,6 +1,6 @@
 # Production
 
-The production version is hosted [here](https://goodreads-recommender.vercel.app/)
+The production version is hosted [here at goodreads-recommender.vercel.app](https://goodreads-recommender.vercel.app/)
 
 # How it works
 
