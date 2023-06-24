@@ -1,3 +1,7 @@
+# Production
+
+The production version is hosted [here](https://goodreads-recommender.vercel.app/)
+
 # How it works
 
 This project uses the OpenAI GPT-3 API (specifically, text-davinci-003) and Vercel Edge functions with streaming. It generates 5 book recommendations based on the form and user input, sends it to the GPT-3 API via a Vercel Edge function, then streams the response back to the application. The code was forked from [this repo](https://github.com/StephDietz/watch-this) for cinema recommendations. All book data is collected from the Google Books public API.
