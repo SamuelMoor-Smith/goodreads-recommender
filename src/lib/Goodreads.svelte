@@ -119,7 +119,7 @@
                 </table>
             </div>
             <div class="mt-4 font-semibold text-lg">
-                Selected Books: {checkedBooksCount}/10:
+                Selected Books : {checkedBooksCount}/10:
             </div>
             <div class="mt-4 overflow-auto rounded-md px-4 py-2 border border-pink-600" style="max-height: 300px;">
                 <table class="w-full">
