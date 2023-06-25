@@ -21,7 +21,7 @@
 	/**
 	 * @type Array<any>
 	 */
-	export let checkedBooks;
+	export let goodreadsData;
 
 	const categoryTypes = [
 		'Fiction',
@@ -126,7 +126,7 @@
 				placeholder="Ex. Must be a part of a trilogy."
 			/>
 			<Goodreads 
-				bind:checkedBooks
+				bind:goodreadsData
 			/>
 			<button
 				on:click

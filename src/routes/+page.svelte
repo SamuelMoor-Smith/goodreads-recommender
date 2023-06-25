@@ -8,6 +8,7 @@
 	import RecommendationCard from '$lib/RecommendationCard.svelte';
 	import { onMount } from 'svelte';
 	import LoadingCard from '$lib/LoadingCard.svelte';
+
 	let loading = false;
 	let error = '';
 	let endStream = false;
@@ -24,7 +25,7 @@
 	/**
 	 * @type Array<any>
 	 */
-	 export let checkedBooks;
+	let goodreadsData;
 
 
 	/**
@@ -60,20 +61,6 @@
 	let selectedCategories = [];
 	let specificDescriptors = '';
 
-	async function generateFeederString() {
-		let bookStatements = checkedBooks.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => {
-			let statement = `Title: ${book.Title}, Author: ${book.Author}`;
-			if (book["My Rating"] !== "0") {
-			statement += `, My rating: ${book["My Rating"]}`;
-			}
-			if (book["My Review"] !== "") {
-			statement += `, My review: ${book["My Review"]}`;
-			}
-			return statement;
-		});
-		return `I would like the books to be similar to the following books: ${bookStatements.join("; ")}. Please do not add any of these books on the recommended reading list as I already know of all of them.`;
-	}
-
 	async function search() {
 		if (loading) return;
 		recommendations = [];
@@ -81,24 +68,15 @@
 		endStream = false;
 		loading = true;
 
-		// Pass your parsed data array to the function
-		let feederString = await generateFeederString();
-
-		let fullSearchCriteria = `Give me a list of 5 book recommendations ${
-			selectedCategories ? `that fit all of the following categories: ${selectedCategories}` : ''
-		}. ${
-			specificDescriptors
-				? `Make sure it fits the following description as well: ${specificDescriptors}.`
-				: ''
-		} ${feederString} ${
-			selectedCategories || specificDescriptors
-				? `If you do not have 5 recommendations that fit these criteria perfectly and you believe I would be interested in based on my current reading list, do your best to suggest other book's that I might like.`
-				: ''
-		} Please return this response as a numbered list with the book's title, followed by a colon, and then a brief description of the books. There should be a line of whitespace between each item in the list.`;	
+		const searchInfo = {
+			'selectedCategories': selectedCategories,
+			'specificDescriptors': specificDescriptors,
+			'goodreadsData': goodreadsData
+		};
 
 		const response = await fetch('/api/getRecommendation', {
 			method: 'POST',
-			body: JSON.stringify({ searched: fullSearchCriteria }),
+			body: JSON.stringify({ searchInfo: searchInfo }),
 			headers: {
 				'content-type': 'application/json'
 			}
@@ -177,7 +155,7 @@
 						bind:selectedCategories
 						bind:loading
 						bind:specificDescriptors
-						bind:checkedBooks
+						bind:goodreadsData
 						on:click={search}
 					/>
 					{#if recommendations.length > 0 && endStream}

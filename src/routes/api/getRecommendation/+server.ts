@@ -4,6 +4,8 @@ import { OPENAI_API_KEY } from '$env/static/private';
 const key = OPENAI_API_KEY;
 // const decoder = new TextDecoder("utf-8");
 
+const MAX_TOKEN_COUNT = 2048;
+
 interface OpenAIStreamPayload {
 	model: string;
 	prompt: string;
@@ -14,6 +16,67 @@ interface OpenAIStreamPayload {
 	max_tokens: number;
 	stream: boolean;
 	n: number;
+}
+
+import {encode, decode} from 'gpt-3-encoder';
+
+function getPrompt(selectedCategories: string[], specificDescriptors: string, booksToAdd: any[] = []) {
+	return `Give me a list of 5 book recommendations ${
+		selectedCategories ? `that fit all of the following categories: ${selectedCategories}` : ''
+	}. ${
+		specificDescriptors
+			? `Make sure it fits the following description as well: ${specificDescriptors}.`
+			: ''
+	} ${generateGoodreadsString(booksToAdd)} ${
+		selectedCategories || specificDescriptors
+			? `If you do not have 5 recommendations that fit these criteria perfectly and you believe I would be interested in based on my current reading list, do your best to suggest other book's that I might like.`
+			: ''
+	} Please return this response as a numbered list with the book's title, followed by a colon, and then a brief description of the books. There should be a line of whitespace between each item in the list.`;
+}
+
+function generateGoodreadsString(booksToAdd: any[]) {
+	let bookStatements = booksToAdd.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => {getNewBookString(book)});
+	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list as I already know of all of them.`;
+}
+
+function getNewBookString(book: { [x: string]: string; Title: string; Author: string; }) {
+	let statement = `Title: ${book.Title}, Author: ${book.Author}`;
+	if (book["My Rating"] !== "0") {
+		statement += `, My rating: ${book["My Rating"]}`;
+	}
+	if (book["My Review"] !== "") {
+		statement += `, My review: ${book["My Review"]}`;
+	}
+	return statement;
+}
+
+async function generateFullSearchCriteria(goodreadsData: any[], selectedCategories: string[], specificDescriptors: string) {
+
+	// Get the token count without the goodreads data
+	let currentTokenCount = encode(getPrompt(selectedCategories, specificDescriptors)).length;
+
+	// Create an array to store all the books we can add to the prompt
+	let booksToAdd = [];
+
+	// Books were sorted on the frontend but since we pop from the back of the array, we need to reverse it
+	goodreadsData.reverse();
+
+	// While we can still add books to the prompt, keep processing books
+	while (currentTokenCount < MAX_TOKEN_COUNT && goodreadsData.length > 0) {
+		let newBook = goodreadsData.pop();
+		if (!newBook || !newBook.Title || !newBook.Author) {
+			console.log("Book is missing title or author");
+		} else {
+			let newBookTokenCount = encode(getNewBookString(newBook)).length;
+			currentTokenCount += newBookTokenCount;
+			if (currentTokenCount < MAX_TOKEN_COUNT) {
+				booksToAdd.push(newBook);
+			}
+		}
+	}
+
+	// Create the final prompt with all the books we can add as recommendations
+	return getPrompt(selectedCategories, specificDescriptors, booksToAdd);
 }
 
 async function OpenAIStream(payload: OpenAIStreamPayload) {
@@ -72,12 +135,14 @@ async function OpenAIStream(payload: OpenAIStreamPayload) {
 }
 
 export async function POST({ request }: { request: any }) {
-	const { searched } = await request.json();
+	const { searchInfo } = await request.json();
+	const {goodreadsData, selectedCategories, specificDescriptors} = searchInfo;
+	const searched = await generateFullSearchCriteria(goodreadsData, selectedCategories, specificDescriptors);
 	const payload = {
 		model: 'text-davinci-003',
 		prompt: searched,
 		temperature: 0.7,
-		max_tokens: 2048,
+		max_tokens: MAX_TOKEN_COUNT,
 		top_p: 1.0,
 		frequency_penalty: 0.0,
 		stream: true,
@@ -85,12 +150,5 @@ export async function POST({ request }: { request: any }) {
 		n: 1
 	};
 	const stream = await OpenAIStream(payload);
-	// const reader = stream.getReader();
-    // while (true) {
-    //     const { done, value } = await reader.read();
-    //     if (done) {
-    //         break;
-    //     }
-    // }
 	return new Response(stream);
 }
