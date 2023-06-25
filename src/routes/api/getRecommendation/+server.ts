@@ -4,7 +4,7 @@ import { OPENAI_API_KEY } from '$env/static/private';
 const key = OPENAI_API_KEY;
 // const decoder = new TextDecoder("utf-8");
 
-const MAX_TOKEN_COUNT = 2048;
+const MAX_TOKEN_COUNT = 2048 - 100;
 
 interface OpenAIStreamPayload {
 	model: string;
@@ -18,7 +18,7 @@ interface OpenAIStreamPayload {
 	n: number;
 }
 
-import {encode, decode} from 'gpt-3-encoder';
+import {encode} from 'gpt-tokenizer';
 
 function getPrompt(selectedCategories: string[], specificDescriptors: string, booksToAdd: any[] = []) {
 	return `Give me a list of 5 book recommendations ${
@@ -35,7 +35,7 @@ function getPrompt(selectedCategories: string[], specificDescriptors: string, bo
 }
 
 function generateGoodreadsString(booksToAdd: any[]) {
-	let bookStatements = booksToAdd.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => {getNewBookString(book)});
+	let bookStatements = booksToAdd.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => getNewBookString(book));
 	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list as I already know of all of them.`;
 }
 
@@ -67,9 +67,9 @@ async function generateFullSearchCriteria(goodreadsData: any[], selectedCategori
 		if (!newBook || !newBook.Title || !newBook.Author) {
 			console.log("Book is missing title or author");
 		} else {
-			let newBookTokenCount = encode(getNewBookString(newBook)).length;
+			let newBookTokenCount = encode(`${getNewBookString(newBook)}; `).length;
 			currentTokenCount += newBookTokenCount;
-			if (currentTokenCount < MAX_TOKEN_COUNT) {
+			if (currentTokenCount <= MAX_TOKEN_COUNT) {
 				booksToAdd.push(newBook);
 			}
 		}
@@ -142,7 +142,7 @@ export async function POST({ request }: { request: any }) {
 		model: 'text-davinci-003',
 		prompt: searched,
 		temperature: 0.7,
-		max_tokens: MAX_TOKEN_COUNT,
+		max_tokens: MAX_TOKEN_COUNT+100,
 		top_p: 1.0,
 		frequency_penalty: 0.0,
 		stream: true,
