@@ -37,6 +37,7 @@
 		"eventsource-parser": "^0.1.0",
 		"gpt-3-encoder": "^1.1.4",
 		"gpt-tokenizer": "^2.1.1",
+		"openai": "^3.3.0",
 		"papaparse": "^5.4.1",
 		"svelte-scrollto": "^0.2.0"
 	}

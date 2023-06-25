@@ -8,7 +8,7 @@ const MAX_TOKEN_COUNT = 2048 - 100;
 
 interface OpenAIStreamPayload {
 	model: string;
-	prompt: string;
+	messages: { role: string; content: string; }[];
 	temperature: number;
 	top_p: number;
 	frequency_penalty: number;
@@ -21,22 +21,18 @@ interface OpenAIStreamPayload {
 import {encode} from 'gpt-tokenizer';
 
 function getPrompt(selectedCategories: string[], specificDescriptors: string, booksToAdd: any[] = []) {
-	return `Give me a list of 5 book recommendations ${
-		selectedCategories ? `that fit all of the following categories: ${selectedCategories}` : ''
-	}. ${
-		specificDescriptors
-			? `Make sure it fits the following description as well: ${specificDescriptors}.`
-			: ''
-	} ${generateGoodreadsString(booksToAdd)} ${
-		selectedCategories || specificDescriptors
-			? `If you do not have 5 recommendations that fit these criteria perfectly and you believe I would be interested in based on my current reading list, do your best to suggest other book's that I might like.`
-			: ''
-	} Please return this response as a numbered list with the book's title, followed by a colon, and then a brief description of the books. There should be a line of whitespace between each item in the list.`;
+	return `Give me a list of 5 book recommendations that you think I would like based on the following information: ${
+		selectedCategories.length > 0 ? `The books must fit all of the following categories: ${selectedCategories}. ` : ''
+		}${specificDescriptors ? `Make sure it fits the following description as well: ${specificDescriptors}. ` : ''
+		}${booksToAdd.length > 0 ? generateGoodreadsString(booksToAdd) : ''
+		}${selectedCategories || specificDescriptors
+			? `If you do not have 5 recommendations that fit these criteria perfectly and you believe I would be interested in based on my current reading list, do your best to suggest other book's that I might like. `: ''
+		}Please return this response as a numbered list with the book's title, followed by a colon, and then a brief description of the books. There should be a line of whitespace between each item in the list.`;
 }
 
 function generateGoodreadsString(booksToAdd: any[]) {
 	let bookStatements = booksToAdd.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => getNewBookString(book));
-	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list as I already know of all of them.`;
+	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list as I already know of all of them. `;
 }
 
 function getNewBookString(book: { [x: string]: string; Title: string; Author: string; }) {
@@ -85,7 +81,7 @@ async function OpenAIStream(payload: OpenAIStreamPayload) {
 
 	let counter = 0;
 
-	const res = await fetch('https://api.openai.com/v1/completions', {
+	const res = await fetch('https://api.openai.com/v1/chat/completions', {
 		headers: {
 			'Content-Type': 'application/json',
 			Authorization: `Bearer ${key}`
@@ -106,7 +102,7 @@ async function OpenAIStream(payload: OpenAIStreamPayload) {
 					}
 					try {
 						const json = JSON.parse(data);
-						const text = json.choices[0].text;
+						const text = json.choices[0].delta.content;
 
 						if (counter < 2 && (text.match(/\n/) || []).length) {
 							// this is a prefix character (i.e., "\n\n"), do nothing
@@ -139,8 +135,11 @@ export async function POST({ request }: { request: any }) {
 	const {goodreadsData, selectedCategories, specificDescriptors} = searchInfo;
 	const searched = await generateFullSearchCriteria(goodreadsData, selectedCategories, specificDescriptors);
 	const payload = {
-		model: 'text-davinci-003',
-		prompt: searched,
+		model: 'gpt-3.5-turbo',
+		messages: [
+			{"role": "system", "content": "You are a book recommendation system."}, 
+			{"role": "user", "content": searched}
+		],
 		temperature: 0.7,
 		max_tokens: MAX_TOKEN_COUNT+100,
 		top_p: 1.0,
