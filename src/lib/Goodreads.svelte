@@ -61,7 +61,7 @@
                 /**
                  * @type {{ [x: number]: number; }}
                  */
-                const ratingOrder = {5: 6, 1: 5, 4: 4, 3: 3, 2: 2, 0: 1};
+                const ratingOrder = {5: 6, 1: 5, 4: 4, 2: 3, 3: 2, 0: 1};
 
                 // Sort the data first based on custom rating order, then if they have a review, and lastly by the length of their title + author
                 goodreadsData.sort((a, b) => {
