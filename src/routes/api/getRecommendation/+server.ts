@@ -32,7 +32,7 @@ function getPrompt(selectedCategories: string[], specificDescriptors: string, bo
 
 function generateGoodreadsString(booksToAdd: any[]) {
 	let bookStatements = booksToAdd.map((/** @type {{ [x: string]: string; Title: string; Author: string; }} */ book) => getNewBookString(book));
-	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list as I already know of all of them. `;
+	return `This is my current reading list of books I have read, am reading, and/or want to read: ${bookStatements.join("; ")}. My rating of the book is given if available (on a 5 point scale) as is my review. Please do not add any of these books on the recommended reading list (as I already know of all of them). Please also return books from a variety of authors. Ideally at least 3 of the books are by authors that I do not have on my reading list. `;
 }
 
 function getNewBookString(book: { [x: string]: string; Title: string; Author: string; }) {
